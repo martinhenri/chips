@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dégustation de chips</title>
+    <style>
+      :root {
+        --bg: #0f1724;
+        --card: #0b1220;
+        --accent: #f59e0b;
+        --muted: #94a3b8;
+        --glass: rgba(255, 255, 255, 0.04);
+        --radius: 14px;
+        --gap: 18px;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: linear-gradient(180deg, #071024 0%, #071a2b 100%);
+        color: #e6eef8;
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 36px auto;
+        padding: 28px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        border-radius: 20px;
+        box-shadow: 0 6px 30px rgba(2, 6, 23, 0.7);
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .logo {
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent), #ef4444);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #031124;
+        box-shadow: 0 6px 18px rgba(245, 158, 11, 0.15);
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+      }
+      p.subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      input.search {
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: var(--card);
+        color: inherit;
+        min-width: 220px;
+      }
+      select {
+        padding: 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: var(--card);
+        color: inherit;
+      }
+      .btn {
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: none;
+        background: var(--accent);
+        color: #061021;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn.ghost {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: var(--accent);
+      }
+
+      main {
+        margin-top: 22px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: var(--gap);
+      }
+      .card {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          var(--glass)
+        );
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .flavor {
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .meta {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      footer {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 13px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .empty {
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.01);
+      }
+
+      @media (max-width: 600px) {
+        .controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="title">
+          <div class="logo">B</div>
+          <div>
+            <h1>Dégustation de chips — Catalogue Bret’s</h1>
+            <p class="subtitle">
+              Une page prête à imprimer/partager pour ta séance de dégustation
+            </p>
+          </div>
+        </div>
+
+        <div class="controls">
+          <input
+            class="search"
+            id="q"
+            placeholder="Rechercher un parfum... (ex: Fromage, Kebab)"
+            oninput="filter()"
+          />
+          <select id="sort" onchange="sortList()">
+            <option value="none">Trier — Aucun</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+          </select>
+          <button class="btn" onclick="downloadHTML()">
+            Télécharger .html
+          </button>
+          <button class="btn ghost" onclick="window.print()">Imprimer</button>
+        </div>
+      </header>
+
+      <main>
+        <div id="count" style="margin-bottom: 12px; color: var(--muted)">
+          40 parfums
+        </div>
+
+        <div id="grid" class="grid"></div>
+
+        <div id="empty" class="empty" style="display: none">
+          Aucun parfum trouvé.
+        </div>
+      </main>
+
+      <footer>
+        <div>
+          Page générée automatiquement — liste non officielle de parfums Bret’s
+        </div>
+        <div id="date" style="color: var(--muted)"></div>
+      </footer>
+    </div>
+
+    <script>
+      const flavors = [
+        "L’Originale (au sel de Guérande)",
+        "A l’Ancienne (au sel de Guérande)",
+        "La Craquante (ondulées, sel de Guérande)",
+        "La Paysanne",
+        "La Généreuse",
+        "Beurre Salé",
+        "Aïoli",
+        "Bacon Grillé",
+        "Bleu & Pancetta",
+        "Brebis / Cerise Noire",
+        "Camembert",
+        "Caramel Beurre Salé",
+        "Cèpes",
+        "Cheddar & Oignons de Roscoff",
+        "Chèvre & Piment d’Espelette",
+        "Chili Pointe de Menthe",
+        "Chocolat & Piment",
+        "Confit d’Oignons & Vinaigre Balsamique",
+        "Côte de Bœuf Grillée",
+        "Crème & Poivre",
+        "Échalotes au Vinaigre Balsamique",
+        "Fromage du Jura",
+        "Fromage Frais & Fines Herbes",
+        "Gouda au Cumin",
+        "Bolognaise",
+        "Indian Curry",
+        "Jambon Braisé",
+        "Kebab",
+        "Miel & Moutarde",
+        "Moutarde Pickles",
+        "Paprika Fumé",
+        "Pata Negra",
+        "Pesto Mozzarella",
+        "Petits Oignons",
+        "Pili‑Pili",
+        "Pizza au Feu de Bois",
+        "Poivre de Sichuan",
+        "Poivrons Grillés & Chorizo",
+        "Pommes de Terre Rôties Ail & Romarin",
+        "Poulet Braisé",
+        "Saveur Pastis",
+      ];
+
+      const grid = document.getElementById("grid");
+      const countEl = document.getElementById("count");
+      const empty = document.getElementById("empty");
+
+      function render(list) {
+        grid.innerHTML = "";
+        if (!list.length) {
+          empty.style.display = "block";
+          countEl.textContent = "0 parfums";
+          return;
+        }
+        empty.style.display = "none";
+        countEl.textContent =
+          list.length + (list.length > 1 ? " parfums" : " parfum");
+        list.forEach((f, i) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          const name = document.createElement("div");
+          name.className = "flavor";
+          name.textContent = i + 1 + ". " + f;
+          const meta = document.createElement("div");
+          meta.className = "meta";
+          card.appendChild(name);
+          card.appendChild(meta);
+          grid.appendChild(card);
+        });
+      }
+
+      // initial render
+      render(flavors.slice());
+
+      function filter() {
+        const q = document.getElementById("q").value.trim().toLowerCase();
+        if (!q) return render(flavors.slice());
+        const res = flavors.filter((f) => f.toLowerCase().includes(q));
+        render(res);
+      }
+
+      function sortList() {
+        const mode = document.getElementById("sort").value;
+        let arr = flavors.slice();
+        if (mode === "az") arr.sort((a, b) => a.localeCompare(b, "fr"));
+        else if (mode === "za") arr.sort((a, b) => b.localeCompare(a, "fr"));
+        render(arr);
+      }
+
+      // download the current HTML file
+      function downloadHTML() {
+        const html = document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // show date
+      document.getElementById("date").textContent =
+        new Date().toLocaleDateString("fr-FR");
+    </script>
+  </body>
+</html>
